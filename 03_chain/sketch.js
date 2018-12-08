@@ -2,29 +2,60 @@
 // Matter.js + p5.js Examples
 // This example is based on examples from: http://brm.io/matter-js/
 
-var Engine = Matter.Engine;
-var Render = Matter.Render;
-var World = Matter.World;
-var Body = Matter.Body;
-var Bodies = Matter.Bodies;
-var Composite = Matter.Composite;
-var Composites = Matter.Composites;
-var Constraint = Matter.Constraint;
+const Engine = Matter.Engine;
+const Render = Matter.Render;
+const World = Matter.World;
+const Body = Matter.Body;
+const Bodies = Matter.Bodies;
+const Composite = Matter.Composite;
+const Composites = Matter.Composites;
+const Constraint = Matter.Constraint;
 
-var Mouse = Matter.Mouse;
-var MouseConstraint = Matter.MouseConstraint;
+let Mouse = Matter.Mouse;
+let MouseConstraint = Matter.MouseConstraint;
 
-var engine;
-var world;
-var bodies;
+let engine;
+let world;
+let bodies;
 
-var canvas;
-var constraint;
+let canvas;
+let constraint;
 
-var mouseConstraint;
+let mouseConstraint;
+
+let gravitySlider;
+let gravityP;
+
+let toggleButton;
+
+let looping = true;
+
+function toggleState() {
+  if (looping) {
+    noLoop();
+    looping = false;
+  } else {
+    loop();
+    looping = true;
+  }
+};
+
+function keyPressed() {
+  if (key == ' ')
+    toggleState();
+}
 
 function setup() {
   canvas = createCanvas(800, 600);
+  createP('');
+  gravitySlider = createSlider(-4, 4, 1, 0.05);
+  gravitySlider.style('width', '800px');
+  gravitySlider.input(() => {
+    gravityP.html('Gravity = ' + parseFloat(gravitySlider.value()));
+  });
+  gravityP = createP('Gravity = ' + gravitySlider.value());
+  toggleButton = createButton('Toggle Simulation');
+  toggleButton.mousePressed(toggleState);
 
 
   // create an engine
@@ -92,7 +123,8 @@ function setup() {
   World.add(world, ropeA);
 
   // run the engine
-  Engine.run(engine);
+  // Engine.run(engine);
+  // Update engine in draw so it halts
 }
 
 function draw() {
@@ -100,6 +132,7 @@ function draw() {
   stroke(255);
   strokeWeight(1);
   fill(255, 50);
+  engine.world.gravity.y = parseFloat(gravitySlider.value());
   for (var i = 0; i < bodies.length; i++) {
     var circle = bodies[i];
     var pos = circle.position;
@@ -130,4 +163,5 @@ function draw() {
     stroke(255);
     line(a.x, a.y, b.x + bodyB.position.x, b.y + bodyB.position.y);
   }
+  Engine.update(engine);
 }
