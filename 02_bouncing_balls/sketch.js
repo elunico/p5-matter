@@ -9,6 +9,9 @@ var Bodies = Matter.Bodies;
 var Composite = Matter.Composite;
 var Composites = Matter.Composites;
 
+var xgrav, ygrav;
+var xmsg, ymsg;
+
 var Mouse = Matter.Mouse;
 var MouseConstraint = Matter.MouseConstraint;
 
@@ -19,6 +22,22 @@ var bodies;
 var canvas;
 
 var mouseConstraint;
+
+function makeCircle(x, y) {
+  var params = {
+    restitution: 1,
+    friction: 0
+  }
+  return Bodies.circle(x, y, 32, params);
+}
+
+function keyPressed() {
+  if (key == ' ') {
+    let x = makeCircle(mouseX, mouseY);
+    World.add(world, x);
+    bodies.push(x);
+  }
+}
 
 function setup() {
   canvas = createCanvas(800, 600);
@@ -31,6 +50,11 @@ function setup() {
   // create an engine
   engine = Engine.create();
   world = engine.world;
+
+  xmsg = createP('Gravity in x direction: ');
+  xgrav = createSlider(-10, 10, 0, 0.5);
+  ymsg = createP('Gravity in y direction: ');
+  ygrav = createSlider(-10, 10, 1, 0.5);
 
   var mouse = Mouse.create(canvas.elt);
   var mouseParams = {
@@ -55,17 +79,11 @@ function setup() {
   World.add(world, wall2);
   World.add(world, top);
 
-  function makeCircle(x, y) {
-    var params = {
-      restitution: 0.7,
-      friction: 0.2
-    }
-    return Bodies.circle(x, y, 32, params);
-  }
+
 
   // x, y, columns, rows, column gap, row gap
   //var stack = Composites.stack(20, 50, 15, 10, 20, 20, makeCircle);
-  var stack = Composites.stack(20, height/2, 7, 3, 50, 50, makeCircle);
+  var stack = Composites.stack(20, height / 2, 7, 3, 50, 50, makeCircle);
   bodies = stack.bodies;
 
   // add all of the bodies to the world
@@ -80,6 +98,10 @@ function draw() {
   stroke(255);
   strokeWeight(1);
   fill(255, 50);
+  engine.world.gravity.x = parseFloat(xgrav.value());
+  engine.world.gravity.y = parseFloat(ygrav.value());
+  xmsg.html("Gravity in y direction: " + xgrav.value());
+  ymsg.html("Gravity in x direction: " + ygrav.value());
   for (var i = 0; i < bodies.length; i++) {
     var circle = bodies[i];
     var pos = circle.position;
